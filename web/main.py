@@ -91,7 +91,7 @@ async def main():
         except Exception: pass
 
     running = True
-# main.py - Part 3: Non-blocking Inputs & AI Simulation Engine
+# main.py - Part 3: Direct Transition Control & Simulation Engine
     while running:
         # Performance Optimization 3: Lock Wasm execution framework at 30 FPS
         clock.tick(30)
@@ -114,7 +114,9 @@ async def main():
                         except Exception: pass
                     elif res["action"] == "START_CLICKED":
                         g_config = res["config"]
-                        curr_state = STATE_TRANSITION
+                        # FORCE UNLOCK: Instantly jump straight into gameplay 
+                        # to prevent the browser from freezing on the 3D cube animation
+                        curr_state = STATE_GAMEPLAY
                         partners.append(Buddy(sq_r.left, sq_r.centery, "ARMIN"))
                         partners.append(Buddy(sq_r.right, sq_r.centery, "EREN"))
             
@@ -145,7 +147,8 @@ async def main():
                 try:
                     if not g_vars["music_muted"]: pygame.mixer.music.set_volume(g_vars["saved_volume"])
                 except Exception: pass
-            if menu_sys.update_and_draw(screen): curr_state = STATE_GAMEPLAY
+            # Safe boundary check for menu rendering state
+            menu_sys.update_and_draw(screen)
                 
         elif curr_state == STATE_GAMEPLAY:
             camera.update(lilly.rect)
@@ -179,7 +182,7 @@ async def main():
                     if e.rect.centerx < city_r.left + 22: e.x -= 3
                     if e.rect.centerx > city_r.right - 22: e.x += 3
                     if e.rect.centery < city_r.top + 22: e.y -= 3
-                    if e.rect.centery > city_r.bottom - 22: e.y += 3
+                    if e.rect.bottom - 22: e.y += 3
                     e.rect.x, e.rect.y = int(e.x), int(e.y)
                 is_sw = (lilly.state == "SWINGING")
                 g_vars["base_hp"] = e.update_ai(sq_r, lilly, g_vars["game_timer"]/1800.0, g_vars["base_hp"], g_vars["breach_active"], e == g_vars["breacher"], is_sw)
